@@ -14,7 +14,6 @@ import (
 	"time"
 
 	"github.com/fatedier/frp/client"
-	frpNet "github.com/fatedier/frp/utils/net"
 )
 
 func GetProxyStatus(statusAddr string, user string, passwd string, name string) (status *client.ProxyStatusResp, err error) {
@@ -72,6 +71,11 @@ func GetProxyStatus(statusAddr string, user string, passwd string, name string) 
 			return &s, nil
 		}
 	}
+	for _, s := range allStatus.Sudp {
+		if s.Name == name {
+			return &s, nil
+		}
+	}
 
 	return status, errors.New("no proxy status found")
 }
@@ -98,7 +102,7 @@ func ReloadConf(reloadAddr string, user string, passwd string) error {
 }
 
 func SendTcpMsg(addr string, msg string) (res string, err error) {
-	c, err := frpNet.ConnectTcpServer(addr)
+	c, err := net.Dial("tcp", addr)
 	if err != nil {
 		err = fmt.Errorf("connect to tcp server error: %v", err)
 		return
